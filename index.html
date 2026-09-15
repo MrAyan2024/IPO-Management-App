@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IPO Tracker</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -34,7 +32,6 @@
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addIpoModal">+ Add New IPO</button>
             </div>
 
-            <!-- Chart -->
             <div class="card mb-4">
                 <div class="card-body">
                     <h5>Total Combined Price Date-wise (Money Blocked)</h5>
@@ -42,7 +39,6 @@
                 </div>
             </div>
 
-            <!-- Table -->
             <div class="table-responsive">
                 <table class="table table-striped table-bordered">
                     <thead class="table-dark">
@@ -78,28 +74,30 @@
     </div>
 </div>
 
-<!-- ADD IPO MODAL -->
+<!-- ADD IPO MODAL (UPDATED) -->
 <div class="modal fade" id="addIpoModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header"><h5 class="modal-title">Add New IPO</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <form id="addIpoForm">
                 <div class="modal-body">
-                    <div class="mb-2"><label>IPO Name</label><input type="text" id="ipoName" class="form-control" required></div>
+                    <div class="mb-2"><label>IPO Name</label><input type="text" id="ipoName" class="form-control"></div>
                     <div class="row g-2">
                         <div class="col"><label>First Date</label><input type="date" id="ipoFirstDate" class="form-control"></div>
-                        <div class="col"><label>Last Date</label><input type="date" id="ipoLastDate" class="form-control" required></div>
-                        <div class="col"><label>Refund Date</label><input type="date" id="ipoRefundDate" class="form-control" required></div>
+                        <div class="col"><label>Last Date</label><input type="date" id="ipoLastDate" class="form-control"></div>
+                        <div class="col"><label>Refund Date</label><input type="date" id="ipoRefundDate" class="form-control"></div>
                     </div>
                     <div class="row g-2 mt-1">
-                        <div class="col"><label>Price</label><input type="number" step="0.01" id="ipoPrice" class="form-control" required></div>
+                        <div class="col"><label>Price</label><input type="number" step="0.01" id="ipoPrice" class="form-control"></div>
                         <div class="col"><label>GM Price</label><input type="number" id="ipoGm" class="form-control"></div>
                         <div class="col"><label>Rating</label><input type="number" id="ipoRating" class="form-control"></div>
                     </div>
                     <div class="row g-2 mt-1">
                         <div class="col">
-                            <label>Applied By</label>
-                            <select id="ipoAppliedBy" class="form-select"></select>
+                            <label>Applied By (Type or Select)</label>
+                            <!-- Changed to input with datalist for writable option -->
+                            <input type="text" id="ipoAppliedBy" class="form-control" list="members-datalist" placeholder="Type new name or select...">
+                            <datalist id="members-datalist"></datalist>
                         </div>
                         <div class="col d-flex align-items-end">
                             <div class="form-check">
@@ -136,7 +134,6 @@
     </div>
 </div>
 
-<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="script.js"></script>
