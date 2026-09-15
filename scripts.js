@@ -75,18 +75,34 @@ function deleteMember(id) {
     }
 }
 
+// UPDATED: Populates the writable datalist instead of a strict dropdown
 function renderMemberDropdown() {
-    const select = document.getElementById('ipoAppliedBy');
-    select.innerHTML = '<option value="">-- Select Member --</option>' + 
-        members.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+    const datalist = document.getElementById('members-datalist');
+    if (datalist) {
+        datalist.innerHTML = members.map(m => `<option value="${m.name}">`).join('');
+    }
 }
 
-// --- IPO LOGIC ---
+// --- IPO LOGIC (FIXED) ---
 document.getElementById('addIpoForm').addEventListener('submit', (e) => {
     e.preventDefault();
+    
+    const name = document.getElementById('ipoName').value.trim();
+    if (!name) {
+        alert("Please enter an IPO Name.");
+        return;
+    }
+
+    const appliedByName = document.getElementById('ipoAppliedBy').value.trim();
+    
+    // BONUS: Auto-adds the member if you typed a brand new name in the IPO form
+    if (appliedByName && !members.find(m => m.name === appliedByName)) {
+        members.push({ id: Date.now() + 1, name: appliedByName });
+    }
+
     const newIpo = {
         id: Date.now(),
-        name: document.getElementById('ipoName').value,
+        name: name,
         first_date: document.getElementById('ipoFirstDate').value,
         last_date: document.getElementById('ipoLastDate').value,
         refund_date: document.getElementById('ipoRefundDate').value,
@@ -94,12 +110,20 @@ document.getElementById('addIpoForm').addEventListener('submit', (e) => {
         gm_price: parseInt(document.getElementById('ipoGm').value) || 0,
         rating: parseInt(document.getElementById('ipoRating').value) || 0,
         applied: document.getElementById('ipoApplied').checked,
-        applied_by: document.getElementById('ipoAppliedBy').value
+        applied_by: appliedByName
     };
+    
     ipos.push(newIpo);
     saveData();
     renderAll();
-    bootstrap.Modal.getInstance(document.getElementById('addIpoModal')).hide();
+    
+    // Safely closes the modal
+    const modalElement = document.getElementById('addIpoModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+    if (modalInstance) {
+        modalInstance.hide();
+    }
+    
     e.target.reset();
 });
 
@@ -140,11 +164,9 @@ function initChart() {
 }
 
 function updateChart() {
-    // Get unique Last Dates and sort them
     const lastDates = [...new Set(ipos.map(i => i.last_date).filter(d => d))].sort();
     
     const data = lastDates.map(targetDate => {
-        // Sum prices where Last Date <= Target Date < Refund Date
         return ipos.reduce((sum, ipo) => {
             if (ipo.last_date && ipo.refund_date) {
                 if (ipo.last_date <= targetDate && ipo.refund_date > targetDate) {
@@ -165,7 +187,6 @@ function renderSummary() {
     const container = document.getElementById('summaryContainer');
     const appliedIpos = ipos.filter(i => i.applied);
     
-    // Group by applicant, then by last_date
     const summary = {};
     appliedIpos.forEach(ipo => {
         if (!ipo.applied_by || !ipo.last_date) return;
