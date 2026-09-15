@@ -9,6 +9,7 @@
         body { background-color: #f8f9fa; }
         .card { box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .nav-link { cursor: pointer; }
+        .tab-pane { padding: 20px 0; }
     </style>
 </head>
 <body>
@@ -16,65 +17,77 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="#">IPO Tracker</a>
-        <div class="collapse navbar-collapse">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#dashboard">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#summary">Applicant Summary</a></li>
-                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#members">Manage Members</a></li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" onclick="showTab('dashboard')">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showTab('summary')">Applicant Summary</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showTab('members')">Manage Members</a>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
 
 <div class="container mt-4">
-    <div class="tab-content">
-        
-        <!-- TAB 1: DASHBOARD -->
-        <div class="tab-pane fade show active" id="dashboard">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>IPO Dashboard</h2>
-                <button class="btn btn-primary" onclick="openAddModal()">+ Add New IPO</button>
-            </div>
+    <!-- DASHBOARD TAB -->
+    <div id="dashboard" class="tab-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>IPO Dashboard</h2>
+            <button class="btn btn-primary" onclick="openAddModal()">+ Add New IPO</button>
+        </div>
 
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5>Total Combined Price Date-wise (Money Blocked)</h5>
-                    <canvas id="ipoChart" height="100"></canvas>
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>IPO Name</th><th>First Date</th><th>Last Date</th><th>Refund Date</th>
-                            <th>Price</th><th>GM</th><th>Rating</th><th>Applied</th><th>Applied By</th><th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ipoTableBody"></tbody>
-                </table>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Total Combined Price Date-wise (Money Blocked)</h5>
+                <canvas id="ipoChart" height="100"></canvas>
             </div>
         </div>
 
-        <!-- TAB 2: SUMMARY -->
-        <div class="tab-pane fade" id="summary">
-            <h2>Applicant Wise Summary</h2>
-            <p class="text-muted">Total applied IPO prices per applicant, grouped by Last Date.</p>
-            <div id="summaryContainer"></div>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>IPO Name</th>
+                        <th>Last Date</th>
+                        <th>Refund Date</th>
+                        <th>Price</th>
+                        <th>GM</th>
+                        <th>Rating</th>
+                        <th>Applied</th>
+                        <th>Applied By</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="ipoTableBody"></tbody>
+            </table>
         </div>
+    </div>
 
-        <!-- TAB 3: MEMBERS -->
-        <div class="tab-pane fade" id="members">
-            <h2>Manage Members (Applied By)</h2>
-            <form id="addMemberForm" class="mb-4">
-                <div class="input-group" style="max-width: 400px;">
-                    <input type="text" id="newMemberName" class="form-control" placeholder="New Member Name" required>
-                    <button class="btn btn-primary" type="submit">Add Member</button>
-                </div>
-            </form>
-            <ul class="list-group" id="memberList"></ul>
-        </div>
+    <!-- SUMMARY TAB -->
+    <div id="summary" class="tab-section" style="display: none;">
+        <h2>Applicant Wise Summary</h2>
+        <p class="text-muted">Total applied IPO prices per applicant, grouped by Last Date.</p>
+        <div id="summaryContainer"></div>
+    </div>
 
+    <!-- MEMBERS TAB -->
+    <div id="members" class="tab-section" style="display: none;">
+        <h2>Manage Members (Applied By)</h2>
+        <form id="addMemberForm" class="mb-4">
+            <div class="input-group" style="max-width: 400px;">
+                <input type="text" id="newMemberName" class="form-control" placeholder="New Member Name" required>
+                <button class="btn btn-primary" type="submit">Add Member</button>
+            </div>
+        </form>
+        <ul class="list-group" id="memberList"></ul>
     </div>
 </div>
 
@@ -94,16 +107,12 @@
                     </div>
                     <div class="row g-2">
                         <div class="col">
-                            <label>First Date</label>
-                            <input type="date" id="ipoFirstDate" class="form-control">
-                        </div>
-                        <div class="col">
                             <label>Last Date</label>
-                            <input type="date" id="ipoLastDate" class="form-control">
+                            <input type="date" id="ipoLastDate" class="form-control" required>
                         </div>
                         <div class="col">
                             <label>Refund Date</label>
-                            <input type="date" id="ipoRefundDate" class="form-control">
+                            <input type="date" id="ipoRefundDate" class="form-control" required>
                         </div>
                     </div>
                     <div class="row g-2 mt-1">
@@ -180,9 +189,37 @@ function saveData() {
     localStorage.setItem('ipo_data', JSON.stringify(ipos));
 }
 
+// --- TAB NAVIGATION ---
+function showTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-section').forEach(tab => {
+        tab.style.display = 'none';
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName).style.display = 'block';
+    
+    // Update nav links
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Refresh data when switching tabs
+    if (tabName === 'summary') {
+        renderSummary();
+    } else if (tabName === 'members') {
+        renderMemberList();
+    } else if (tabName === 'dashboard') {
+        updateChart();
+        renderIpoTable();
+    }
+}
+
 // --- MODAL FUNCTIONS ---
 function openAddModal() {
-    addModal = new bootstrap.Modal(document.getElementById('addIpoModal'));
+    const modalEl = document.getElementById('addIpoModal');
+    addModal = new bootstrap.Modal(modalEl);
     addModal.show();
 }
 
@@ -212,10 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function renderAll() {
     renderMemberDropdown();
-    renderMemberList();
     renderIpoTable();
     updateChart();
-    renderSummary();
 }
 
 // --- MEMBERS LOGIC ---
@@ -225,13 +260,16 @@ function saveMember(e) {
     if (name && !members.find(m => m.name === name)) {
         members.push({ id: Date.now(), name });
         saveData();
-        renderAll();
+        renderMemberDropdown();
+        renderMemberList();
         document.getElementById('newMemberName').value = '';
     }
 }
 
 function renderMemberList() {
     const list = document.getElementById('memberList');
+    if (!list) return;
+    
     list.innerHTML = members.map(m => `
         <li class="list-group-item d-flex justify-content-between align-items-center">
             ${m.name}
@@ -247,7 +285,8 @@ function openEditMember(id) {
     const member = members.find(m => m.id === id);
     document.getElementById('editMemberId').value = id;
     document.getElementById('editMemberName').value = member.name;
-    editModal = new bootstrap.Modal(document.getElementById('editMemberModal'));
+    const modalEl = document.getElementById('editMemberModal');
+    editModal = new bootstrap.Modal(modalEl);
     editModal.show();
 }
 
@@ -259,7 +298,8 @@ function updateMember(e) {
     if (member && newName) {
         member.name = newName;
         saveData();
-        renderAll();
+        renderMemberDropdown();
+        renderMemberList();
         closeEditModal();
     }
 }
@@ -268,7 +308,8 @@ function deleteMember(id) {
     if (confirm('Delete this member?')) {
         members = members.filter(m => m.id !== id);
         saveData();
-        renderAll();
+        renderMemberDropdown();
+        renderMemberList();
     }
 }
 
@@ -294,12 +335,12 @@ function saveIPO(e) {
     // Auto-add member if new
     if (appliedByName && !members.find(m => m.name === appliedByName)) {
         members.push({ id: Date.now() + 1, name: appliedByName });
+        renderMemberDropdown();
     }
 
     const newIpo = {
         id: Date.now(),
         name: name,
-        first_date: document.getElementById('ipoFirstDate').value,
         last_date: document.getElementById('ipoLastDate').value,
         refund_date: document.getElementById('ipoRefundDate').value,
         price: parseFloat(document.getElementById('ipoPrice').value) || 0,
@@ -311,7 +352,8 @@ function saveIPO(e) {
     
     ipos.push(newIpo);
     saveData();
-    renderAll();
+    renderIpoTable();
+    updateChart();
     closeModal();
     alert('IPO saved successfully!');
 }
@@ -323,7 +365,6 @@ function renderIpoTable() {
     tbody.innerHTML = ipos.map(ipo => `
         <tr>
             <td>${ipo.name}</td>
-            <td>${ipo.first_date || '-'}</td>
             <td>${ipo.last_date || '-'}</td>
             <td>${ipo.refund_date || '-'}</td>
             <td>${ipo.price}</td>
@@ -340,7 +381,8 @@ function deleteIpo(id) {
     if (confirm('Delete this IPO?')) {
         ipos = ipos.filter(i => i.id !== id);
         saveData();
-        renderAll();
+        renderIpoTable();
+        updateChart();
     }
 }
 
@@ -361,7 +403,8 @@ function initChart() {
         },
         options: { 
             scales: { y: { beginAtZero: true } },
-            responsive: true
+            responsive: true,
+            maintainAspectRatio: true
         }
     });
 }
