@@ -10,6 +10,8 @@
         .card { box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .nav-link { cursor: pointer; }
         .tab-pane { padding: 20px 0; }
+        .btn-edit { background-color: #ffc107; border: none; color: #000; }
+        .btn-edit:hover { background-color: #e0a800; }
     </style>
 </head>
 <body>
@@ -96,11 +98,12 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add New IPO</h5>
+                <h5 class="modal-title" id="modalTitle">Add New IPO</h5>
                 <button type="button" class="btn-close" onclick="closeModal()"></button>
             </div>
             <form id="addIpoForm">
                 <div class="modal-body">
+                    <input type="hidden" id="editIpoId">
                     <div class="mb-2">
                         <label>IPO Name</label>
                         <input type="text" id="ipoName" class="form-control" required>
@@ -145,7 +148,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-success">Save IPO</button>
+                    <button type="submit" class="btn btn-success" id="saveBtn">Save IPO</button>
                 </div>
             </form>
         </div>
@@ -191,21 +194,16 @@ function saveData() {
 
 // --- TAB NAVIGATION ---
 function showTab(tabName) {
-    // Hide all tabs
     document.querySelectorAll('.tab-section').forEach(tab => {
         tab.style.display = 'none';
     });
-    
-    // Show selected tab
     document.getElementById(tabName).style.display = 'block';
     
-    // Update nav links
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
     });
     event.target.classList.add('active');
     
-    // Refresh data when switching tabs
     if (tabName === 'summary') {
         renderSummary();
     } else if (tabName === 'members') {
@@ -218,6 +216,32 @@ function showTab(tabName) {
 
 // --- MODAL FUNCTIONS ---
 function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'Add New IPO';
+    document.getElementById('saveBtn').textContent = 'Save IPO';
+    document.getElementById('editIpoId').value = '';
+    document.getElementById('addIpoForm').reset();
+    
+    const modalEl = document.getElementById('addIpoModal');
+    addModal = new bootstrap.Modal(modalEl);
+    addModal.show();
+}
+
+function openEditModal(id) {
+    const ipo = ipos.find(i => i.id === id);
+    if (!ipo) return;
+    
+    document.getElementById('modalTitle').textContent = 'Edit IPO';
+    document.getElementById('saveBtn').textContent = 'Update IPO';
+    document.getElementById('editIpoId').value = id;
+    document.getElementById('ipoName').value = ipo.name;
+    document.getElementById('ipoLastDate').value = ipo.last_date || '';
+    document.getElementById('ipoRefundDate').value = ipo.refund_date || '';
+    document.getElementById('ipoPrice').value = ipo.price;
+    document.getElementById('ipoGm').value = ipo.gm_price;
+    document.getElementById('ipoRating').value = ipo.rating;
+    document.getElementById('ipoAppliedBy').value = ipo.applied_by || '';
+    document.getElementById('ipoApplied').checked = ipo.applied;
+    
     const modalEl = document.getElementById('addIpoModal');
     addModal = new bootstrap.Modal(modalEl);
     addModal.show();
@@ -227,6 +251,7 @@ function closeModal() {
     if (addModal) {
         addModal.hide();
         document.getElementById('addIpoForm').reset();
+        document.getElementById('editIpoId').value = '';
     }
 }
 
@@ -241,7 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderAll();
     initChart();
     
-    // Setup forms
     document.getElementById('addIpoForm').addEventListener('submit', saveIPO);
     document.getElementById('addMemberForm').addEventListener('submit', saveMember);
     document.getElementById('editMemberForm').addEventListener('submit', updateMember);
@@ -330,6 +354,7 @@ function saveIPO(e) {
         return;
     }
 
+    const editId = document.getElementById('editIpoId').value;
     const appliedByName = document.getElementById('ipoAppliedBy').value.trim();
     
     // Auto-add member if new
@@ -338,8 +363,7 @@ function saveIPO(e) {
         renderMemberDropdown();
     }
 
-    const newIpo = {
-        id: Date.now(),
+    const ipoData = {
         name: name,
         last_date: document.getElementById('ipoLastDate').value,
         refund_date: document.getElementById('ipoRefundDate').value,
@@ -349,13 +373,31 @@ function saveIPO(e) {
         applied: document.getElementById('ipoApplied').checked,
         applied_by: appliedByName
     };
-    
-    ipos.push(newIpo);
-    saveData();
-    renderIpoTable();
-    updateChart();
-    closeModal();
-    alert('IPO saved successfully!');
+
+    if (editId) {
+        // Update existing IPO
+        const index = ipos.findIndex(i => i.id === parseInt(editId));
+        if (index !== -1) {
+            ipos[index] = { ...ipos[index], ...ipoData };
+            saveData();
+            renderIpoTable();
+            updateChart();
+            closeModal();
+            alert('IPO updated successfully!');
+        }
+    } else {
+        // Add new IPO
+        const newIpo = {
+            id: Date.now(),
+            ...ipoData
+        };
+        ipos.push(newIpo);
+        saveData();
+        renderIpoTable();
+        updateChart();
+        closeModal();
+        alert('IPO saved successfully!');
+    }
 }
 
 function renderIpoTable() {
@@ -372,7 +414,10 @@ function renderIpoTable() {
             <td>${ipo.rating}</td>
             <td>${ipo.applied ? 'Yes' : 'No'}</td>
             <td>${ipo.applied_by || '-'}</td>
-            <td><button class="btn btn-sm btn-danger" onclick="deleteIpo(${ipo.id})">Del</button></td>
+            <td>
+                <button class="btn btn-sm btn-edit me-1" onclick="openEditModal(${ipo.id})">Edit</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteIpo(${ipo.id})">Del</button>
+            </td>
         </tr>
     `).join('');
 }
